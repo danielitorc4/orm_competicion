@@ -7,6 +7,10 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+        <class>com.dam.models.Ciudad</class>
+        <class>com.dam.models.Competicion</class>
+        <class>com.dam.models.Jugador</class>
+        <class>com.dam.models.Patrocinador</class>
         <class>com.dam.models.Equipo</class>
 
         <properties>

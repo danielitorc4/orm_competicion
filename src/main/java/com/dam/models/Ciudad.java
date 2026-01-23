@@ -13,9 +13,9 @@ public class Ciudad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "name")
     private String nombre;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "country")
     private String pais;
 
     public Ciudad() {

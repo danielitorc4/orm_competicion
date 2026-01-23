@@ -12,13 +12,13 @@ public class Competicion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, name = "name")
     private String nombre;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "game")
     private String juego;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "region")
     private String region;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "matches")
     private int jornadas;
 
     public Competicion() {

@@ -13,9 +13,9 @@ public class Jugador {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "name")
     private String nombre;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "position")
     private String posicion;
     @ManyToOne
     @JoinColumn(name = "team_id")

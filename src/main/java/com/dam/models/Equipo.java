@@ -17,13 +17,14 @@ public class Equipo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, name = "name")
     private String nombre;
-    @Column(nullable = false, length = 5)
+    @Column(nullable = false, length = 5, unique = true, name = "abbreviation")
     private String abreviatura;
-    @Column
+    @Column(nullable = false, name = "foundation_date")
     private LocalDate fechaFundacion;
-    @Column
+    @ManyToOne
+    @JoinColumn(name = "city_id")
     private Ciudad ciudad;
     @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Jugador> plantilla = new ArrayList<>();
