@@ -4,7 +4,7 @@ package com.dam;
  * Hello world!
  *
  */
-public class App 
+public class SimulacionMain
 {
     public static void main( String[] args )
     {

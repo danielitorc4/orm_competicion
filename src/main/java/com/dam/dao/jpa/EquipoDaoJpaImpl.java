@@ -6,6 +6,10 @@ import jakarta.persistence.EntityManager;
 
 import java.util.List;
 
+/**
+ * Implementación JPA del DAO para la entidad Equipo
+ * @author [Daniel Redondo Castaño]
+ */
 public class EquipoDaoJpaImpl implements iEquipoDao {
 
     private final EntityManager em;
