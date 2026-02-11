@@ -6,8 +6,8 @@ import com.dam.util.JpaUtil;
 import jakarta.persistence.EntityManager;
 
 /**
- * Hello world!
- *
+ * Esta clase se encarga de inicializar la aplicación, es el Main
+ * @author [Daniel Redondo Castaño]
  */
 public class SimulacionMain
 {

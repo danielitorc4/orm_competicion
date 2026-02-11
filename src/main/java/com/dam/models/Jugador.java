@@ -15,8 +15,9 @@ public class Jugador {
     private Long id;
     @Column(nullable = false, name = "name")
     private String nombre;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "position")
-    private String posicion;
+    private Posicion posicion;
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Equipo equipo;
@@ -24,7 +25,7 @@ public class Jugador {
     public Jugador() {
     }
 
-    public Jugador(String nombre, String posicion, Equipo equipo) {
+    public Jugador(String nombre, Posicion posicion, Equipo equipo) {
         this.nombre = nombre;
         this.posicion = posicion;
         this.equipo = equipo;
@@ -46,11 +47,11 @@ public class Jugador {
         this.nombre = nombre;
     }
 
-    public String getPosicion() {
+    public Posicion getPosicion() {
         return posicion;
     }
 
-    public void setPosicion(String posicion) {
+    public void setPosicion(Posicion posicion) {
         this.posicion = posicion;
     }
 

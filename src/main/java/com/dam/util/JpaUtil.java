@@ -3,6 +3,11 @@ package com.dam.util;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
+
+/**
+ * Esta clase se encarga de proporcionar una EntityManagerFactory para usarse en el proyecto
+ * @author [Daniel Redondo Castaño]
+ */
 public class JpaUtil {
 
     private static final EntityManagerFactory entityManagerFactory = buildEntityManagerFactory();
