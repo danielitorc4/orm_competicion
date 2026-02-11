@@ -138,6 +138,18 @@ public class Equipo {
         return ordenada;
     }
 
+    /**
+     * Obtiene el jugador de una posición específica
+     * @param posicion La posición a buscar
+     * @return El jugador en esa posición o null si no existe
+     */
+    public Jugador getJugadorPorPosicion(Posicion posicion) {
+        return plantilla.stream()
+                .filter(j -> j.getPosicion() == posicion)
+                .findFirst()
+                .orElse(null);
+    }
+
     public void setPlantilla(List<Jugador> plantilla) {
         this.plantilla = plantilla;
     }

@@ -30,7 +30,7 @@ public class SimulacionService {
         }
 
         for (Equipo equipo : equipos) {
-            System.out.println("Equipo participante: " + equipo.getNombre());
+            System.out.println("\nEquipo participante: " + equipo.getNombre());
             System.out.println("Plantilla: ");
             equipo.getPlantilla().forEach(jugador ->
                 System.out.println("- " + jugador.getNombre() + " (" + jugador.getPosicion() + ")")
@@ -44,7 +44,7 @@ public class SimulacionService {
 
     private static void simularJornadas(Competicion competicion, List<Equipo> equipos) {
         int jornadas = competicion.getJornadas();
-        System.out.println("Simulando " + jornadas + " jornadas para la competición " + competicion.getNombre());
+        System.out.println("\nSimulando " + jornadas + " jornadas para la competición " + competicion.getNombre());
 
         if (equipos == null || equipos.isEmpty()) {
             System.out.println("Error: No hay equipos para simular.");
@@ -89,12 +89,13 @@ public class SimulacionService {
                     System.out.println("Partido: " + t1.getNombre() + " vs " + t2.getNombre() + " -> Ganador: " + t2.getNombre());
                 }
             }
+            System.out.println();
         }
 
         // Ordenar equipos por número de victorias
         List<Map.Entry<Equipo, int[]>> ranking = new ArrayList<>(stats.entrySet());
         ranking.sort((e1, e2) -> Integer.compare(e2.getValue()[0], e1.getValue()[0]));
-        System.out.println("\nClasificación final tras " + jornadas + " jornadas:");
+        System.out.println("Clasificación final tras " + jornadas + " jornadas:");
 
         int pos = 1;
         for (Map.Entry<Equipo, int[]> entry : ranking) {
@@ -139,39 +140,31 @@ public class SimulacionService {
                 continue;
             }
 
-            // Crear un mapa de jugadores por posición para cada equipo
-            Map<Posicion, List<Jugador>> jugadoresEq1 = agruparPorPosicion(equipo1);
-            Map<Posicion, List<Jugador>> jugadoresEq2 = agruparPorPosicion(equipo2);
+            // Seleccionar una posición aleatoria del enum
+            Posicion[] posiciones = Posicion.values();
+            Posicion posicionIntercambio = posiciones[rnd.nextInt(posiciones.length)];
 
-            // Buscar una posición común que tenga jugadores en ambos equipos
-            Posicion posicionIntercambio = null;
-            for (Posicion pos : Posicion.values()) {
-                if (jugadoresEq1.containsKey(pos) && !jugadoresEq1.get(pos).isEmpty() &&
-                    jugadoresEq2.containsKey(pos) && !jugadoresEq2.get(pos).isEmpty()) {
-                    posicionIntercambio = pos;
-                    break;
-                }
-            }
+            // Obtener el jugador de esa posición en cada equipo
+            Jugador jugador1 = equipo1.getJugadorPorPosicion(posicionIntercambio);
+            Jugador jugador2 = equipo2.getJugadorPorPosicion(posicionIntercambio);
 
-            if (posicionIntercambio == null) {
-                System.out.println("Intercambio " + (i + 1) + ": No se encontró una posición compatible entre "
-                    + equipo1.getNombre() + " y " + equipo2.getNombre());
+            if (jugador1 == null || jugador2 == null) {
+                System.out.println("Intercambio " + (i + 1) + ": No se encontró jugador en posición "
+                    + posicionIntercambio + " en alguno de los equipos.");
                 continue;
             }
 
-            // Seleccionar un jugador aleatorio de cada equipo en esa posición
-            List<Jugador> jugadores1 = jugadoresEq1.get(posicionIntercambio);
-            List<Jugador> jugadores2 = jugadoresEq2.get(posicionIntercambio);
-
-            Jugador jugador1 = jugadores1.get(rnd.nextInt(jugadores1.size()));
-            Jugador jugador2 = jugadores2.get(rnd.nextInt(jugadores2.size()));
 
             // Realizar el intercambio
             System.out.println("Intercambio " + (i + 1) + ":");
-            System.out.println("  " + jugador1.getNombre() + " (" + jugador1.getPosicion() + ") de "
-                + equipo1.getNombre() + " -> " + equipo2.getNombre());
-            System.out.println("  " + jugador2.getNombre() + " (" + jugador2.getPosicion() + ") de "
-                + equipo2.getNombre() + " -> " + equipo1.getNombre());
+//            System.out.println("  " + jugador1.getNombre() + " (" + jugador1.getPosicion() + ") de "
+//                + equipo1.getNombre() + " -> " + equipo2.getNombre());
+//            System.out.println("  " + jugador2.getNombre() + " (" + jugador2.getPosicion() + ") de "
+//                + equipo2.getNombre() + " -> " + equipo1.getNombre());
+            System.out.println("  " + jugador1.getNombre() + " (" + jugador1.getPosicion() + ") "
+                    + equipo1.getAbreviatura() + " -> " + equipo2.getAbreviatura());
+            System.out.println("  " + jugador2.getNombre() + " (" + jugador2.getPosicion() + ") "
+                    + equipo2.getAbreviatura() + " -> " + equipo1.getAbreviatura());
 
             em.getTransaction().begin();
 
@@ -195,7 +188,7 @@ public class SimulacionService {
         // Recargar equipos para mostrar plantillas actualizadas
         equipos = new EquipoDaoJpaImpl(em).findAll();
 
-        System.out.println("========== PLANTILLAS ACTUALIZADAS ==========");
+        System.out.println("\n========== PLANTILLAS ACTUALIZADAS ==========");
 
         for (Equipo equipo : equipos) {
             System.out.println("\n" + equipo.getNombre() + ":");
@@ -206,22 +199,5 @@ public class SimulacionService {
         System.out.println("\n==============================================\n");
     }
 
-
-//     Agrupa los jugadores de un equipo por su posición
-    private static Map<Posicion, List<Jugador>> agruparPorPosicion(Equipo equipo) {
-        Map<Posicion, List<Jugador>> jugadoresPorPosicion = new HashMap<>();
-
-        for (Jugador jugador : equipo.getPlantilla()) {
-            Posicion posicion = jugador.getPosicion();
-
-            if (!jugadoresPorPosicion.containsKey(posicion)) {
-                jugadoresPorPosicion.put(posicion, new ArrayList<>());
-            }
-
-            jugadoresPorPosicion.get(posicion).add(jugador);
-        }
-
-        return jugadoresPorPosicion;
-    }
 
 }
