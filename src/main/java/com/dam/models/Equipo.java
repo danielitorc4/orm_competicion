@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class Equipo {
     @ManyToOne
     @JoinColumn(name = "city_id")
     private Ciudad ciudad;
-    @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL)
     private List<Jugador> plantilla = new ArrayList<>();
     @ManyToMany
     @JoinTable(
@@ -58,6 +59,19 @@ public class Equipo {
     public void removeJugador(Jugador jugador) {
         plantilla.remove(jugador);
         jugador.setEquipo(null);
+    }
+
+    /**
+     * Transfiere un jugador de este equipo a otro equipo destino.
+     * Evita que orphanRemoval elimine al jugador, ya que
+     * nunca se pone el equipo a null durante la transferencia.
+     */
+    public void transferirJugador(Jugador jugador, Equipo equipoDestino) {
+        if (this.plantilla.contains(jugador)) {
+            jugador.setEquipo(equipoDestino);
+            this.plantilla.remove(jugador);
+            equipoDestino.getPlantilla().add(jugador);
+        }
     }
 
     public void addPatrocinador (Patrocinador patrocinador) {
@@ -112,6 +126,16 @@ public class Equipo {
 
     public List<Jugador> getPlantilla() {
         return plantilla;
+    }
+
+    /**
+     * Devuelve la plantilla ordenada por posición (Top, Jungle, Mid, Adc, Support)
+     * @return Lista de jugadores ordenada por posición
+     */
+    public List<Jugador> getPlantillaOrdenada() {
+        List<Jugador> ordenada = new ArrayList<>(plantilla);
+        ordenada.sort(Comparator.comparing(Jugador::getPosicion));
+        return ordenada;
     }
 
     public void setPlantilla(List<Jugador> plantilla) {

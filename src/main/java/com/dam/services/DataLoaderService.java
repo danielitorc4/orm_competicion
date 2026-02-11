@@ -24,19 +24,19 @@ public class DataLoaderService {
             em.getTransaction().begin();
 
             Map<String, Ciudad> ciudades = cargarCiudades(em);
-            System.out.println("✓ Ciudades cargadas: " + ciudades.size());
+            System.out.println("Ciudades cargadas: " + ciudades.size());
 
             Map<String, Patrocinador> patrocinadores = cargarPatrocinadores(em);
-            System.out.println("✓ Patrocinadores cargados: " + patrocinadores.size());
+            System.out.println("Patrocinadores cargados: " + patrocinadores.size());
 
             Map<String, Equipo> equipos = cargarEquipos(em, ciudades);
-            System.out.println("✓ Equipos cargados: " + equipos.size());
+            System.out.println("Equipos cargados: " + equipos.size());
 
             int jugadoresCount = cargarJugadores(em, equipos);
-            System.out.println("✓ Jugadores cargados: " + jugadoresCount);
+            System.out.println("Jugadores cargados: " + jugadoresCount);
 
             asignarPatrocinadores(equipos, patrocinadores);
-            System.out.println("✓ Patrocinadores asignados a equipos");
+            System.out.println("Patrocinadores asignados a equipos");
 
             em.getTransaction().commit();
             System.out.println("========== DATOS CARGADOS EXITOSAMENTE ==========\n");
@@ -54,19 +54,21 @@ public class DataLoaderService {
         Map<String, Ciudad> ciudades = new HashMap<>();
         CiudadDaoJpaImpl ciudadDao = new CiudadDaoJpaImpl(em);
 
-        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/ciudades.csv");
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/ciudades.csv")) {
+            assert is != null;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
-            String line = br.readLine(); // Saltar cabecera
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 2) {
-                    String nombre = parts[0].trim();
-                    String pais = parts[1].trim();
+                String line = br.readLine(); // Saltar cabecera
+                while ((line = br.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 2) {
+                        String nombre = parts[0].trim();
+                        String pais = parts[1].trim();
 
-                    Ciudad ciudad = new Ciudad(nombre, pais);
-                    ciudadDao.save(ciudad);
-                    ciudades.put(nombre, ciudad);
+                        Ciudad ciudad = new Ciudad(nombre, pais);
+                        ciudadDao.save(ciudad);
+                        ciudades.put(nombre, ciudad);
+                    }
                 }
             }
         }
@@ -78,16 +80,18 @@ public class DataLoaderService {
         Map<String, Patrocinador> patrocinadores = new HashMap<>();
         PatrocinadorDaoImpl patrocinadorDao = new PatrocinadorDaoImpl(em);
 
-        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/patrocinadores.csv");
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/patrocinadores.csv")) {
+            assert is != null;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
-            String line = br.readLine(); // Saltar cabecera
-            while ((line = br.readLine()) != null) {
-                String nombre = line.trim();
-                if (!nombre.isEmpty()) {
-                    Patrocinador patrocinador = new Patrocinador(nombre);
-                    patrocinadorDao.save(patrocinador);
-                    patrocinadores.put(nombre, patrocinador);
+                String line = br.readLine(); // Saltar cabecera
+                while ((line = br.readLine()) != null) {
+                    String nombre = line.trim();
+                    if (!nombre.isEmpty()) {
+                        Patrocinador patrocinador = new Patrocinador(nombre);
+                        patrocinadorDao.save(patrocinador);
+                        patrocinadores.put(nombre, patrocinador);
+                    }
                 }
             }
         }
@@ -98,22 +102,24 @@ public class DataLoaderService {
         Map<String, Equipo> equipos = new HashMap<>();
         EquipoDaoJpaImpl equipoDao = new EquipoDaoJpaImpl(em);
 
-        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/equipos.csv");
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/equipos.csv")) {
+            assert is != null;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
-            String line = br.readLine(); // Saltar cabecera
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 3) {
-                    String nombre = parts[0].trim();
-                    String abreviatura = parts[1].trim();
-                    String nombreCiudad = parts[2].trim();
+                String line = br.readLine(); // Saltar cabecera
+                while ((line = br.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 3) {
+                        String nombre = parts[0].trim();
+                        String abreviatura = parts[1].trim();
+                        String nombreCiudad = parts[2].trim();
 
-                    Ciudad ciudad = ciudades.get(nombreCiudad);
-                    if (ciudad != null) {
-                        Equipo equipo = new Equipo(nombre, abreviatura, ciudad);
-                        equipoDao.save(equipo);
-                        equipos.put(nombre, equipo);
+                        Ciudad ciudad = ciudades.get(nombreCiudad);
+                        if (ciudad != null) {
+                            Equipo equipo = new Equipo(nombre, abreviatura, ciudad);
+                            equipoDao.save(equipo);
+                            equipos.put(nombre, equipo);
+                        }
                     }
                 }
             }
@@ -125,32 +131,34 @@ public class DataLoaderService {
         JugadorDaoJpaImpl jugadorDao = new JugadorDaoJpaImpl(em);
         int count = 0;
 
-        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/jugadores.csv");
-             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = DataLoaderService.class.getResourceAsStream("/data/jugadores.csv")) {
+            assert is != null;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
-            String line = br.readLine(); // Saltar cabecera
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 3) {
-                    String nombre = parts[0].trim();
-                    String posicionStr = parts[1].trim();
-                    String nombreEquipo = parts[2].trim();
+                String line = br.readLine(); // Saltar cabecera
+                while ((line = br.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 3) {
+                        String nombre = parts[0].trim();
+                        String posicionStr = parts[1].trim();
+                        String nombreEquipo = parts[2].trim();
 
-                    // Convertir string a enum Posicion
-                    Posicion posicion = null;
-                    try {
-                        posicion = Posicion.valueOf(posicionStr.toUpperCase());
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("Posición inválida: " + posicionStr + " para jugador " + nombre);
-                        continue;
-                    }
+                        // Convertir string a enum Posicion
+                        Posicion posicion = null;
+                        try {
+                            posicion = Posicion.valueOf(posicionStr.toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            System.err.println("Posición inválida: " + posicionStr + " para jugador " + nombre);
+                            continue;
+                        }
 
-                    Equipo equipo = equipos.get(nombreEquipo);
-                    if (equipo != null) {
-                        Jugador jugador = new Jugador(nombre, posicion, equipo);
-                        equipo.addJugador(jugador);
-                        jugadorDao.save(jugador);
-                        count++;
+                        Equipo equipo = equipos.get(nombreEquipo);
+                        if (equipo != null) {
+                            Jugador jugador = new Jugador(nombre, posicion, equipo);
+                            equipo.addJugador(jugador);
+                            jugadorDao.save(jugador);
+                            count++;
+                        }
                     }
                 }
             }

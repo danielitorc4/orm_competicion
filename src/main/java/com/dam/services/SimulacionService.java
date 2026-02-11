@@ -115,12 +115,16 @@ public class SimulacionService {
             return;
         }
 
+        EquipoDaoJpaImpl equipoDao = new EquipoDaoJpaImpl(em);
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
-        int numIntercambios = rnd.nextInt(1, 6);
+        int numIntercambios = rnd.nextInt(5, 11);
         System.out.println("Se realizarán " + numIntercambios + " intercambios de jugadores.\n");
 
         for (int i = 0; i < numIntercambios; i++) {
+            // Recargar equipos frescos desde la BD en cada iteración
+            equipos = equipoDao.findAll();
+
             int idx1 = rnd.nextInt(equipos.size());
             int idx2;
             do {
@@ -172,34 +176,32 @@ public class SimulacionService {
             em.getTransaction().begin();
 
             try {
-                equipo1.removeJugador(jugador1);
-                equipo2.removeJugador(jugador2);
-
-                equipo2.addJugador(jugador1);
-                equipo1.addJugador(jugador2);
-
-                em.merge(jugador1);
-                em.merge(jugador2);
-                em.merge(equipo1);
-                em.merge(equipo2);
+                equipo1.transferirJugador(jugador1, equipo2);
+                equipo2.transferirJugador(jugador2, equipo1);
 
                 em.getTransaction().commit();
-                System.out.println("== Intercambio realizado exitosamente. ==\n");
+//                System.out.println("== Intercambio realizado exitosamente. ==\n");
 
             } catch (Exception e) {
                 if (em.getTransaction().isActive()) {
                     em.getTransaction().rollback();
                 }
                 System.out.println("== Error al realizar el intercambio: " + e.getMessage() + " ==\n");
+            } finally {
+                em.clear(); // Limpiar contexto de persistencia para evitar entidades detached
             }
         }
 
+        // Recargar equipos para mostrar plantillas actualizadas
+        equipos = new EquipoDaoJpaImpl(em).findAll();
+
         System.out.println("========== PLANTILLAS ACTUALIZADAS ==========");
+
         for (Equipo equipo : equipos) {
             System.out.println("\n" + equipo.getNombre() + ":");
-            equipo.getPlantilla().forEach(jugador ->
-                System.out.println("  - " + jugador.getNombre() + " (" + jugador.getPosicion() + ")")
-            );
+            for (Jugador jugador : equipo.getPlantillaOrdenada()) {
+                System.out.println("  - " + jugador.getNombre() + " (" + jugador.getPosicion() + ")");
+            }
         }
         System.out.println("\n==============================================\n");
     }
