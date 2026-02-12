@@ -19,11 +19,14 @@ public class SimulacionMain
         // Cargar datos iniciales desde CSV
         DataLoaderService.cargarDatosIniciales(em);
 
-        // Crear competición
         Competicion LEC = new Competicion("LEC", "League of Legends", "EUW", 10);
+
+        em.getTransaction().begin();
+        em.persist(LEC);
+        em.getTransaction().commit();
+
         System.out.println("Competición creada: " + LEC.getNombre() + " de " + LEC.getJuego());
 
-        // Simular competición
         SimulacionService.simularCompeticion(LEC, em);
 
         em.close();
