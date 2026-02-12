@@ -138,10 +138,12 @@ public class DataLoaderService {
                 String line = br.readLine(); // Saltar cabecera
                 while ((line = br.readLine()) != null) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 3) {
+                    if (parts.length >= 5) {
                         String nombre = parts[0].trim();
                         String posicionStr = parts[1].trim();
                         String nombreEquipo = parts[2].trim();
+                        int edad = Integer.parseInt(parts[3].trim());
+                        String nacionalidad = parts[4].trim();
 
                         // Convertir string a enum Posicion
                         Posicion posicion = null;
@@ -154,7 +156,7 @@ public class DataLoaderService {
 
                         Equipo equipo = equipos.get(nombreEquipo);
                         if (equipo != null) {
-                            Jugador jugador = new Jugador(nombre, posicion, equipo);
+                            Jugador jugador = new Jugador(nombre, posicion, edad, nacionalidad, equipo);
                             equipo.addJugador(jugador);
                             jugadorDao.save(jugador);
                             count++;
