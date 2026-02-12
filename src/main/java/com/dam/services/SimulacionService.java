@@ -194,16 +194,12 @@ public class SimulacionService {
                 jugador1.setNuevaIncorporacion(true);
                 jugador2.setNuevaIncorporacion(true);
 
-                // Guardar equipos originales antes de la transferencia
-                Equipo equipoOrigen1 = equipo1;
-                Equipo equipoOrigen2 = equipo2;
-
                 equipo1.transferirJugador(jugador1, equipo2);
                 equipo2.transferirJugador(jugador2, equipo1);
 
                 // Registrar los fichajes
-                Fichaje fichaje1 = new Fichaje(jugador1, equipoOrigen1, equipo2);
-                Fichaje fichaje2 = new Fichaje(jugador2, equipoOrigen2, equipo1);
+                Fichaje fichaje1 = new Fichaje(jugador1, equipo1, equipo2);
+                Fichaje fichaje2 = new Fichaje(jugador2, equipo2, equipo1);
                 fichajeDao.save(fichaje1);
                 fichajeDao.save(fichaje2);
 
@@ -343,26 +339,28 @@ public class SimulacionService {
     private static void consulta5DeportistasYPatrocinadores(EntityManager em) {
         System.out.println("=== CONSULTA 5: Deportistas y patrocinadores de un equipo (Movistar KOI) ===");
 
-        // Obtener equipo con sus jugadores y patrocinadores en una sola consulta
-        TypedQuery<Equipo> query = em.createQuery(
-            "SELECT DISTINCT e FROM Equipo e " +
-            "LEFT JOIN FETCH e.plantilla " +
-            "LEFT JOIN FETCH e.patrocinadores " +
-            "WHERE e.nombre = :nombreEquipo", Equipo.class);
-        query.setParameter("nombreEquipo", "Movistar KOI");
+        // Obtener deportistas
+        TypedQuery<Jugador> queryJugadores = em.createQuery(
+            "SELECT j FROM Jugador j WHERE j.equipo.nombre = :nombreEquipo ORDER BY j.posicion",
+            Jugador.class);
+        queryJugadores.setParameter("nombreEquipo", "Movistar KOI");
 
-        Equipo equipo = query.getResultStream().findFirst().orElse(null);
+        List<Jugador> jugadores = queryJugadores.getResultList();
+        System.out.println("  Deportistas:");
+        for (Jugador j : jugadores) {
+            System.out.println("    - " + j.getNombre() + " (" + j.getPosicion() + ")");
+        }
 
-        if (equipo != null) {
-            System.out.println("  Deportistas:");
-            equipo.getPlantillaOrdenada().forEach(j ->
-                System.out.println("    - " + j.getNombre() + " (" + j.getPosicion() + ")"));
+        // Obtener patrocinadores
+        TypedQuery<Patrocinador> queryPatrocinadores = em.createQuery(
+            "SELECT p FROM Patrocinador p JOIN p.equipos e WHERE e.nombre = :nombreEquipo",
+            Patrocinador.class);
+        queryPatrocinadores.setParameter("nombreEquipo", "Movistar KOI");
 
-            System.out.println("  Patrocinadores:");
-            equipo.getPatrocinadores().forEach(p ->
-                System.out.println("    - " + p.getNombre()));
-        } else {
-            System.out.println("  Equipo no encontrado.");
+        List<Patrocinador> patrocinadores = queryPatrocinadores.getResultList();
+        System.out.println("  Patrocinadores:");
+        for (Patrocinador p : patrocinadores) {
+            System.out.println("    - " + p.getNombre());
         }
         System.out.println();
     }
@@ -393,10 +391,13 @@ public class SimulacionService {
             Object[].class);
 
         List<Object[]> results = query.getResultList();
-        results.forEach(row ->
-            System.out.println("  " + row[0] + ": " + row[1] + " deportista(s)"));
-
-        long total = results.stream().mapToLong(row -> (Long) row[1]).sum();
+        int total = 0;
+        for (Object[] row : results) {
+            String nacionalidad = (String) row[0];
+            Long count = (Long) row[1];
+            System.out.println("  " + nacionalidad + ": " + count + " deportista(s)");
+            total += count;
+        }
         System.out.println("  Total deportistas mayores de 23: " + total);
         System.out.println();
     }
